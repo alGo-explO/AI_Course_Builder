@@ -10,9 +10,10 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Allowed origins for CORS (local dev, env var, and production frontend)
+// Allowed origins for CORS (local dev, env var, and production frontends)
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://ai-course-builder-sambhav-kumars-projects-6a95d468.vercel.app',
   'https://ai-course-builder-sepia.vercel.app',
   process.env.CLIENT_URL,
 ].filter(Boolean);
@@ -25,7 +26,9 @@ app.use(cors({
     
     // Normalize trailing slashes for comparison
     const normalizedOrigin = origin.replace(/\/$/, '');
-    const isAllowed = allowedOrigins.some(o => o.replace(/\/$/, '') === normalizedOrigin);
+    const isAllowed = 
+      allowedOrigins.some(o => o.replace(/\/$/, '') === normalizedOrigin) ||
+      /\.vercel\.app$/.test(new URL(origin).hostname);
 
     if (isAllowed || allowedOrigins.includes('*')) {
       callback(null, true);
