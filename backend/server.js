@@ -10,9 +10,29 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
+// Allowed origins for CORS (local dev, env var, and production frontend)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://ai-course-builder-sepia.vercel.app',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman, or health checks)
+    if (!origin) return callback(null, true);
+    
+    // Normalize trailing slashes for comparison
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const isAllowed = allowedOrigins.some(o => o.replace(/\/$/, '') === normalizedOrigin);
+
+    if (isAllowed || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS error: origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
